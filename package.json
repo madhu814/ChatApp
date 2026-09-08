@@ -7,10 +7,16 @@
   "type": "commonjs",
   "main": "index.js",
   "scripts": {
+    "start": "node index.js",
+    "dev": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "@huggingface/inference": "^4.13.28",
+    "dotenv": "^17.4.2",
     "express": "^5.1.0",
+    "openai": "^7.8.0",
     "socket.io": "^4.8.1"
   }
 }

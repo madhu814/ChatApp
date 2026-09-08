@@ -1,7 +1,12 @@
+require('dotenv').config();  // Load environment variables from .env
 const http = require('http');  // Importing the http module
 const express = require('express');  // Importing the express module
 const path = require('path');    // Importing the path module for handling file paths
 const {Server} = require('socket.io'); // Importing the Server class from socket.io
+const { GoogleGenerativeAI } = require('@google/generative-ai');  // Importing Google Generative AI
+
+const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);  // Initialize with API key
+const model = genAI.getGenerativeModel({ model: 'gemini-3.6-flash' });  // Use the currently supported Gemini model
 
 const app = express();    // Creating an instance of express
 const server = http.createServer(app); // Creating an HTTP server using the express application
@@ -11,10 +16,24 @@ io.on('connection', (socket) => { // Listening for new connections to the Socket
   console.log('A user connected', socket.id); // Logging when a user connects
   
   // Handle incoming messages
-  socket.on('sendMessage', (message) => {
+  socket.on('sendMessage', async (message) => {
     console.log('Message received:', message);
-    // Broadcast the message to all connected clients
-    io.emit('message', message);
+    
+    // Broadcast user message to all clients
+    io.emit('message', { user: 'You', text: message });
+    
+    try {
+      // Get AI response from Google Gemini
+      const result = await model.generateContent(message);
+      const aiResponse = result.response.text();
+      
+      // Broadcast AI response to all clients
+      io.emit('message', { user: 'AI', text: aiResponse });
+      console.log('AI response sent:', aiResponse);
+    } catch (error) {
+      console.error('Error calling Gemini API:', error);
+      io.emit('message', { user: 'AI', text: 'Sorry, I encountered an error processing your message.' });
+    }
   });
   
   // Handle disconnection

@@ -51,15 +51,22 @@
      const allMessages = document.getElementById("messages");
      
      // Listen for incoming messages
-     socket.on("message", (message) => {
-            console.log("Received message:", message);
-            console.log("allMessages element:", allMessages);
+     socket.on("message", (data) => {
+            console.log("Received message:", data);
             const p = document.createElement("p");
-            p.innerText = message;
-            p.style.border = "1px solid red"; // Debug styling
-            console.log("Created paragraph:", p);
+            // Display message in format: User: Message
+            p.innerText = `${data.user}: ${data.text}`;
+            // Add styling to differentiate between user and AI messages
+            if (data.user === 'AI') {
+                p.style.backgroundColor = '#e3f2fd';
+                p.style.borderLeft = '4px solid #2196F3';
+            } else {
+                p.style.backgroundColor = '#f1f1f1';
+                p.style.borderLeft = '4px solid #666';
+            }
             allMessages.appendChild(p);
-            console.log("Message appended to DOM");
+            // Auto-scroll to bottom
+            allMessages.scrollTop = allMessages.scrollHeight;
      });
 
      // Send message when button is clicked
